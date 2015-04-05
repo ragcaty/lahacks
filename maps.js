@@ -2,10 +2,10 @@ var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
 
-// Where the map starts
+
 function initialize() {
   directionsDisplay = new google.maps.DirectionsRenderer();
-  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+  //var chicago = new google.maps.LatLng(41.850033, -87.6500523);
   var mapOptions = {
     center: { lat: 34.067728, lng: -118.447223},
     zoom: 15
@@ -14,7 +14,9 @@ function initialize() {
   directionsDisplay.setMap(map);
 }
 
+
 function calcRoute() {
+  var markerArray = new Array();
   var start = document.getElementById('start').value;
   var end = document.getElementById('end').value;
   var request = {
@@ -25,42 +27,40 @@ function calcRoute() {
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       var start, end;
-	  
-	  
-	   var contentString = '<div id="content">'+
-      '<p>Test info box</p>' +
-      '</div>';
-	   var infowindow = new google.maps.InfoWindow({
-      content: contentString
-  });
-  
-  
-      for(var i = 0; i<response.routes[0].overview_path.length; i++) {
-        end = response.routes[0].overview_path[i];
+	  var route = response.routes[0];
+      for(var i = 0; i<route.overview_path.length; i++) {
+        end = route.overview_path[i];
         if(i == 0 || haversine(start, end) > 5) {
-          var marker = new google.maps.Marker({
-            position: response.routes[0].overview_path[i],
-            map: map
-			title: 'Test Title'
-          });
 		  
+          var marker = new google.maps.Marker({
+            position: route.overview_path[i],
+            map: map
+          });
+		var contentString = '<p>Test</p>';
+		var infowindow = new google.maps.InfoWindow({
+      content: contentString
+  });	
 		   google.maps.event.addListener(marker, 'click', function() {
-    infowindow.open(map,marker);
+			 
+				infowindow.open(map,this);
   });
-  
-  
-          start = response.routes[0].overview_path[i];
+		  
+          start = route.overview_path[i];
         }
+		
+		
+		
       }
       directionsDisplay.setDirections(response);
     }
   });
-}
 
+  
+ 
+}
 Number.prototype.toRadians = function() {
   return this * Math.PI / 180;
 }
-
 function haversine(end, start) {
   var dLon = end.lng().toRadians()-start.lng().toRadians();
   var dLat = end.lat().toRadians()-start.lat().toRadians();
